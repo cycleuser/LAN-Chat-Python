@@ -2,6 +2,7 @@ import socket
 import errno
 import sys
 import threading
+import os
 
 HEADER_LENGTH = 10
 while True:
@@ -24,13 +25,17 @@ username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
 client_socket.send(username_header + username)
 print(f"Connected to server with username {my_username}")
 
+# Do not delete. For some reason makes the ANSI Escape codes work
+os.system("")
+
 def send_msg_to_server():
     while True:
-        message = input("")
+        message = input()
         if message:
-            message = message.encode('utf-8')
-            message_header = f"{len(message):<{HEADER_LENGTH}}".encode('utf-8')
-            client_socket.send(message_header + message)
+            message_encoded = message.encode('utf-8')
+            message_header = f"{len(message_encoded):<{HEADER_LENGTH}}".encode('utf-8')
+            client_socket.send(message_header + message_encoded)
+            print(f"\033[F\033[K{my_username} > {message}")
 
 threading.Thread(target=send_msg_to_server).start()
 
@@ -55,5 +60,5 @@ while True:
         continue
 
     except Exception as e:
-        print('Reading error: '.format(str(e)))
+        print('Reading error: {}'.format(str(e)))
         sys.exit()

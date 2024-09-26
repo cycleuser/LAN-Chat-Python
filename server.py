@@ -6,12 +6,14 @@ HEADER_LENGTH = 10
 while True:
     try:
         PORT = int(input("Please enter a PORT: "))
-        break
+        if PORT <= 65535 and PORT >= 0:
+            break
+        else:
+            raise
     except:
-        print("Invalid PORT. Please try again")
+        print("Invalid PORT. Please choose a port between 0 and 65535")
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 server_socket.bind(("", PORT))
