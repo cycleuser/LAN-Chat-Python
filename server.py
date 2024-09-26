@@ -3,20 +3,24 @@ import select
 
 HEADER_LENGTH = 10
 
-IP = "127.0.0.1"
-PORT = 1234
+while True:
+    try:
+        PORT = int(input("Please enter a PORT: "))
+        break
+    except:
+        print("Invalid PORT. Please try again")
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-server_socket.bind((IP, PORT))
+server_socket.bind(("", PORT))
 server_socket.listen()
 
 sockets_list = [server_socket]
 clients = {}
 
-print(f'Listening for connections on {IP}:{PORT}...')
+print(f"Listening for connections on {PORT}...\nFor Linux run the command: 'hostname - i' to find your ip address\nFor Windows run the command: 'ipconig' and find the IPv4 address")
 
 def receive_message(client_socket):
     try:
