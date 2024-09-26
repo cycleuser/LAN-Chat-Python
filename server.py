@@ -20,7 +20,9 @@ server_socket.listen()
 sockets_list = [server_socket]
 clients = {}
 
-print(f"Listening for connections on {PORT}...\nFor Linux run the command: 'hostname - i' to find your ip address\nFor Windows run the command: 'ipconig' and find the IPv4 address")
+hostname = socket.gethostname()
+IP = socket.gethostbyname(hostname)
+print(f"{hostname} is listening for connections on {IP}:{PORT}...")
 
 def receive_message(client_socket):
     try:

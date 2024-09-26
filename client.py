@@ -8,7 +8,6 @@ while True:
     try:
         IP = input("Please enter a IP: ")
         PORT = int(input("Please enter a PORT: "))
-        my_username = input("Username: ")
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -19,14 +18,15 @@ while True:
     except:
         print("Please try again. Server not found!")
 
+my_username = input("Username: ")
 username = my_username.encode('utf-8')
 username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
-
 client_socket.send(username_header + username)
+print(f"Connected to server with username {str(username)}")
 
 def send_msg_to_server():
     while True:
-        message = input(f"{my_username} > ")
+        message = input("")
         if message:
             message = message.encode('utf-8')
             message_header = f"{len(message):<{HEADER_LENGTH}}".encode('utf-8')
@@ -46,9 +46,7 @@ while True:
             message_header = client_socket.recv(HEADER_LENGTH)
             message_length = int(message_header.decode('utf-8').strip())
             message = client_socket.recv(message_length).decode('utf-8')
-            #sys.stdout.write('\x1b[1A') 
-            print('\033[G\033[2K', end="", flush=True)
-            print(f"{username} > {message}")
+            print(f"\r{username} > {message}")
 
     except IOError as e:
         if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
