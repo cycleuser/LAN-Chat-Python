@@ -22,7 +22,7 @@ my_username = input("Username: ")
 username = my_username.encode('utf-8')
 username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
 client_socket.send(username_header + username)
-print(f"Connected to server with username {str(username)}")
+print(f"Connected to server with username {my_username}")
 
 def send_msg_to_server():
     while True:
