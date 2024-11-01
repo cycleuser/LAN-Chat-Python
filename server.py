@@ -1,7 +1,40 @@
 import socket
 import select
+import psutil
 
 HEADER_LENGTH = 10
+
+def list_network_interfaces():
+    interfaces = psutil.net_if_addrs().keys()
+    print("Available network interfaces:")
+    for i, interface in enumerate(interfaces):
+        print(f"{i}: {interface}")
+    return list(interfaces)
+
+def get_interface_ip(interface_name):
+    for interface, addrs in psutil.net_if_addrs().items():
+        if interface == interface_name:
+            for addr in addrs:
+                if addr.family == socket.AF_INET:
+                    return addr.address
+    return None
+
+interfaces = list_network_interfaces()
+while True:
+    try:
+        interface_index = int(input("Select the network interface to use: "))
+        if interface_index >= 0 and interface_index < len(interfaces):
+            selected_interface = interfaces[interface_index]
+            break
+        else:
+            raise
+    except:
+        print("Invalid selection. Please choose a valid network interface.")
+
+IP = get_interface_ip(selected_interface)
+if not IP:
+    print(f"Could not get IP address for interface {selected_interface}")
+    exit(1)
 
 while True:
     try:
@@ -16,15 +49,13 @@ while True:
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-server_socket.bind(("", PORT))
+server_socket.bind((IP, PORT))
 server_socket.listen()
 
 sockets_list = [server_socket]
 clients = {}
 
-hostname = socket.gethostname()
-IP = socket.gethostbyname(hostname)
-print(f"{hostname} is listening for connections on {IP}:{PORT}...")
+print(f"Server is listening for connections on {IP}:{PORT}...")
 
 def receive_message(client_socket):
     try:
