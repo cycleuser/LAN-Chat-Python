@@ -3,13 +3,45 @@ import select
 import psutil
 
 class Server:
-    def __init__(self, ip, port):
+    def __init__(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server_socket.bind((ip, port))
+        
+        interfaces = self.list_network_interfaces()
+        while True:
+            try:
+                interface_index = int(input("Select the network interface to use: "))
+                if interface_index >= 0 and interface_index < len(interfaces):
+                    selected_interface = interfaces[interface_index]
+                    break
+                else:
+                    raise
+            except:
+                print("Invalid selection. Please choose a valid network interface.")
+        
+        ip_address = self.get_interface_ip(selected_interface)
+        port = int(input("Enter the port number to bind the server: "))
+        print(f"Server will bind to {ip_address}:{port}")
+        
+        self.server_socket.bind((ip_address, port))
         self.server_socket.listen()
         self.sockets_list = [self.server_socket]
         self.clients = {}
+
+    def list_network_interfaces(self):
+        interfaces = psutil.net_if_addrs().keys()
+        print("Available network interfaces:")
+        for i, interface in enumerate(interfaces):
+            print(f"{i}: {interface}")
+        return list(interfaces)
+
+    def get_interface_ip(self, interface_name):
+        for interface, addrs in psutil.net_if_addrs().items():
+            if interface == interface_name:
+                for addr in addrs:
+                    if addr.family == socket.AF_INET:
+                        return addr.address
+        return None
 
     def receive_message(self, client_socket):
         try:
@@ -49,36 +81,6 @@ class Server:
                 self.sockets_list.remove(notified_socket)
                 del self.clients[notified_socket]
 
-def list_network_interfaces():
-    interfaces = psutil.net_if_addrs().keys()
-    print("Available network interfaces:")
-    for i, interface in enumerate(interfaces):
-        print(f"{i}: {interface}")
-    return list(interfaces)
-
-def get_interface_ip(interface_name):
-    for interface, addrs in psutil.net_if_addrs().items():
-        if interface == interface_name:
-            for addr in addrs:
-                if addr.family == socket.AF_INET:
-                    return addr.address
-    return None
-
 if __name__ == "__main__":
-    interfaces = list_network_interfaces()
-    while True:
-        try:
-            interface_index = int(input("Select the network interface to use: "))
-            if interface_index >= 0 and interface_index < len(interfaces):
-                selected_interface = interfaces[interface_index]
-                break
-            else:
-                raise
-        except:
-            print("Invalid selection. Please choose a valid network interface.")
-
-    ip_address = get_interface_ip(selected_interface)
-    port = int(input("Enter the port number to bind the server: "))
-    print(f"Server will bind to {ip_address}:{port}")
-    server = Server(ip_address, port)
+    server = Server()
     server.run()
