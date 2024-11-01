@@ -7,7 +7,10 @@ import os
 HEADER_LENGTH = 10
 
 class Client:
-    def __init__(self):
+    def __init__(self, ip=None, port=None, username=None):
+        self.ip = ip
+        self.port = port
+        self.username = username
         self.connect_to_server()
         self.send_username()
         print(f"Connected to server on {self.ip}:{self.port} with username {self.username}")
@@ -15,9 +18,12 @@ class Client:
     def connect_to_server(self):
         while True:
             try:
-                self.ip = input("Please enter an IP: ")
-                self.port = int(input("Please enter a PORT: "))
-                self.username = input("Username: ")
+                if not self.ip:
+                    self.ip = input("Please enter an IP: ")
+                if not self.port:
+                    self.port = int(input("Please enter a PORT: "))
+                if not self.username:
+                    self.username = input("Username: ")
                 self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.client_socket.connect((self.ip, self.port))
                 self.client_socket.setblocking(False)
@@ -77,5 +83,5 @@ class Client:
         self.receive_messages()
 
 if __name__ == "__main__":
-    client = Client()
+    client = Client(ip="192.168.56.101", port=9999, username="testuser")
     client.run()
